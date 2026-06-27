@@ -1,0 +1,21 @@
+{
+  "name": "plumbline",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Prompts-as-code CI: compile prompts from one source kernel, verify parity by hash, and gate behavior plus a small adversarial tier before merge. Ships a business-diagnostic engine (built on the Alex Hormozi corpus) as the reference payload.",
+  "engines": {
+    "node": ">=22.22.0 || ^20.20.0"
+  },
+  "scripts": {
+    "build": "python tools/build.py",
+    "eval:l1": "cd evals && npx promptfoo eval -c promptfooconfig.l1.yaml --output ../eval-results.l1.json",
+    "eval:l2": "cd evals && npx promptfoo eval -c promptfooconfig.l2.yaml --output ../eval-results.l2.json",
+    "eval:security": "cd evals && npx promptfoo eval -c promptfooconfig.security.yaml --output ../eval-results.security.json",
+    "eval": "npm run eval:l1 && npm run eval:l2",
+    "view": "cd evals && npx promptfoo view"
+  },
+  "devDependencies": {
+    "promptfoo": "0.121.15"
+  }
+}

@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: "Hormozi Codex — L1 Diagnostic Engine regression suite"
+
+prompts:
+  - file://prompts/l1.eval.md
+
+providers:
+  - id: anthropic:messages:claude-opus-4-8
+    label: L1-SUT
+    config:
+      max_tokens: 4096
+
+# Grade llm-rubric assertions with a cheaper judge than the system-under-test (Witten: don't pay
+# frontier rates to grade). Override per-CLI with `--grader` if this key changes in a future version.
+defaultTest:
+  options:
+    provider: anthropic:messages:claude-sonnet-4-6
+
+commandLineOptions:
+  maxConcurrency: 2
+
+tests: file://tests/l1_cases.yaml

@@ -1,0 +1,5 @@
+# Tier-1 (deterministic) gate dependencies. Tier-2 (model-graded) runs via the pinned, lockfiled
+# promptfoo (see package.json + package-lock.json; CI installs it with `npm ci`).
+# Exact pins for reproducibility; bump deliberately and only after the 14-day quarantine window.
+pyyaml==6.0.2
+pytest==8.3.4

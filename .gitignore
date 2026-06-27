@@ -1,0 +1,15 @@
+# promptfoo response cache + eval outputs
+.promptfoo-cache/
+eval-results*.json
+results/
+
+# node / python
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local env
+.env
+.env.*
+.DS_Store

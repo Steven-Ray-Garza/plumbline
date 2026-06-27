@@ -1,0 +1,16 @@
+# Dependabot keeps our pins maintainable: SHA-pinned actions and a version-locked promptfoo would
+# otherwise rot silently. It opens PRs for the github-actions and npm ecosystems only; it does NOT
+# auto-merge. Per the project quarantine rule, let a bump sit ~14 days before merging it — these PRs
+# are a notification, not a bypass.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

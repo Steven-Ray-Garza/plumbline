@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: "plumbline — adversarial security tier (LLM01 / LLM02 / LLM07 + judge robustness). ADVISORY."
+
+# Runs the L1 engine against adversarial inputs. Advisory only: the deterministic
+# `check_security_suite_wired` gate in tools/checks.py is the blocking guarantee; these cases
+# report a signal but do not block merge (the CI step is continue-on-error).
+prompts:
+  - file://prompts/l1.eval.md
+
+providers:
+  - id: anthropic:messages:claude-opus-4-8
+    label: SEC-SUT
+    config:
+      max_tokens: 4096
+
+# Grade with the cheaper judge, hardened in-rubric against indirect (judge) injection.
+defaultTest:
+  options:
+    provider: anthropic:messages:claude-sonnet-4-6
+
+commandLineOptions:
+  maxConcurrency: 2
+
+tests: file://tests/security_cases.yaml

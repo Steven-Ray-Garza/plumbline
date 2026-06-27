@@ -1,0 +1,160 @@
+name: plumbline-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Tier 1 — deterministic, zero tokens, runs on every push/PR in seconds.
+  # This is the HARD merge gate: make `lint` a required status check in branch protection.
+  # ---------------------------------------------------------------------------
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+      - name: Compile prompts from source
+        run: python tools/build.py
+      - name: Fail if committed artifacts are stale
+        run: |
+          if ! git diff --quiet -- dist evals/prompts; then
+            echo "::error::dist/ or evals/prompts/ is out of sync with src/. Run 'python tools/build.py' and commit."
+            git --no-pager diff --stat -- dist evals/prompts
+            exit 1
+          fi
+      - name: Tier-1 deterministic checks
+        run: python tools/checks.py
+      - name: pytest
+        run: pytest -q
+
+  # ---------------------------------------------------------------------------
+  # Tier 2 — model-graded evals. ADVISORY (do NOT make this a required status
+  # check; model grading is nondeterministic). Runs only on push to main and on
+  # manual dispatch — NOT on pull requests, because the key is scoped to the
+  # `main`-restricted `evals` Environment (running it on a PR ref would be rejected
+  # by the deployment-branch policy). It is additionally path-filtered + key-gated.
+  # Add a required reviewer to the Environment once collaborators exist.
+  # ---------------------------------------------------------------------------
+  evals:
+    needs: lint
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: evals
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      PROMPTFOO_CACHE_PATH: ${{ github.workspace }}/.promptfoo-cache
+      PASS_THRESHOLD: "0.85"
+      # promptfoo defaults to exit 100 when pass-rate < 100%; neutralize that so BOTH suites run and
+      # the explicit threshold script below is the single source of truth for the golden gate.
+      PROMPTFOO_FAILED_TEST_EXIT_CODE: "0"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0   # full history so the change-filter base SHA exists (no fail-open)
+
+      # Skip the (token-spending) eval job on pushes that did not touch prompts, the kernel, the eval
+      # suite, the pinned runner, the checks, or this workflow. workflow_dispatch always runs.
+      - name: Detect relevant changes
+        id: changes
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          base="${{ github.event.before }}"
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if git diff --name-only "$base" HEAD | grep -qE '^(src/|evals/|tools/(build|checks)\.py|package(-lock)?\.json|\.github/workflows/ci\.yml)'; then
+            echo "relevant=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "relevant=false" >> "$GITHUB_OUTPUT"
+            echo "No prompt/kernel/eval/runner changes — skipping model-graded evals."
+          fi
+
+      - name: Guard — proceed only if relevant (or manual) and key present
+        id: guard
+        run: |
+          relevant="${{ steps.changes.outputs.relevant }}"
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && relevant="true"
+          if [ "$relevant" != "true" ]; then echo "run=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY not set — skipping evals. Add it to the 'evals' Environment (Settings > Environments)."
+            echo "run=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: steps.guard.outputs.run == 'true'
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        if: steps.guard.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Install toolchain (pinned promptfoo via npm ci) + build fresh artifacts
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          npm ci
+          pip install -r requirements.txt
+          python tools/build.py
+
+      - name: Cache promptfoo results
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .promptfoo-cache
+          key: promptfoo-${{ hashFiles('src/**', 'evals/**') }}
+          restore-keys: promptfoo-
+
+      - name: Run golden evals (L1 + L2)
+        if: steps.guard.outputs.run == 'true'
+        working-directory: evals
+        run: |
+          npx promptfoo eval -c promptfooconfig.l1.yaml --output ../eval-results.l1.json --no-progress-bar --no-table
+          npx promptfoo eval -c promptfooconfig.l2.yaml --output ../eval-results.l2.json --no-progress-bar --no-table
+
+      - name: Enforce golden pass-rate threshold
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          node -e '
+            const th = parseFloat(process.env.PASS_THRESHOLD);
+            let failed = false;
+            for (const f of ["eval-results.l1.json", "eval-results.l2.json"]) {
+              const s = require("./" + f).results.stats;
+              const total = s.successes + s.failures + (s.errors || 0);
+              const rate = total ? s.successes / total : 0;
+              const label = f.includes("l1") ? "L1" : "L2";
+              console.log(`${label}: ${s.successes}/${total} = ${(rate*100).toFixed(1)}% (errors ${s.errors||0}, threshold ${(th*100)}%)`);
+              if ((s.errors || 0) > 0) { console.error(`${label}: ${s.errors} case(s) errored`); failed = true; }
+              if (rate < th) failed = true;
+            }
+            if (failed) { console.error("FAIL: a golden suite fell below threshold or had errors."); process.exit(1); }
+            console.log("PASS: all golden suites at or above threshold.");
+          '
+
+      - name: Run adversarial security tier (advisory — never fails the build)
+        if: steps.guard.outputs.run == 'true'
+        continue-on-error: true
+        working-directory: evals
+        run: |
+          npx promptfoo eval -c promptfooconfig.security.yaml --output ../eval-results.security.json --no-progress-bar --no-table
+
+      - name: Upload eval results
+        if: steps.guard.outputs.run == 'true' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: eval-results
+          path: eval-results.*.json
+          if-no-files-found: ignore

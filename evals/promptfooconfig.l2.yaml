@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: "Hormozi Codex — L2 Vertical Forge regression suite"
+
+prompts:
+  - file://prompts/l2.eval.md
+
+providers:
+  - id: anthropic:messages:claude-opus-4-8
+    label: L2-SUT
+    config:
+      max_tokens: 8192   # L2 emits a full L1 instance — needs headroom
+
+defaultTest:
+  options:
+    provider: anthropic:messages:claude-sonnet-4-6
+
+commandLineOptions:
+  maxConcurrency: 2
+
+tests: file://tests/l2_cases.yaml
