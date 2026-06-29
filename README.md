@@ -31,10 +31,10 @@ Everything else is the test harness around those two ideas.
 ## The two-tier gate
 
 **Tier 1 — deterministic (`tools/checks.py` + `pytest`). The hard merge gate.**
-Zero tokens, every push/PR. Eleven checks: sentinel resolution, L2 slot-schema exposure, kernel-hash
+Zero tokens, every push/PR. Twelve checks: sentinel resolution, L2 slot-schema exposure, kernel-hash
 parity, XML balance (L1 + L2), no reasoning-extraction imperatives, the conclusions-with-evidence
 hygiene line, the agnosticism guardrails, promptfoo config integrity, **no code-executing assertions
-in the eval suite**, and **the adversarial security suite stays wired + hardened**. Make `lint` your
+in the eval suite**, and **the adversarial security suite stays wired + hardened**, and **the L1 scaffolding carries no known vertical-specific example**. Make `lint` your
 required status check.
 
 **Tier 2 — model-graded (`promptfoo`). Advisory.**
@@ -90,7 +90,7 @@ evals/prompts/l2.eval.md   promptfoo version ({{vertical_spec}})
 ```bash
 # Tier 1 — deterministic, zero tokens
 python tools/build.py        # compile prompts from src/
-python tools/checks.py       # 11 deterministic gates
+python tools/checks.py       # 12 deterministic gates
 pytest -q                    # the same gates, as pytest cases
 # (or: make lint  /  npm run build)
 

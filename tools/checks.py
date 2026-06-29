@@ -16,6 +16,7 @@ Gates:
   8. promptfoo configs are valid and reference files that exist.
   9. No code-executing assertion types run in the (key-bearing) eval suite (R1 exec-path policy).
  10. The adversarial security suite is wired in and judge-hardened (R2 blocking guarantee).
+ 11. The L1 source scaffolding has no known vertical-specific example (leak regression guard).
 """
 from __future__ import annotations
 
@@ -69,6 +70,15 @@ SECURITY_CASES = EVALS / "tests" / "security_cases.yaml"
 SECURITY_CONFIG = EVALS / "promptfooconfig.security.yaml"
 HARDENING_MARKER = "UNTRUSTED DATA"
 REQUIRED_SECURITY_TAGS = ["LLM01", "judge-robustness"]  # plus LLM02 OR LLM07 (leakage)
+
+# ---- Known vertical-specific EXAMPLE phrases that must not appear in the L1 template's fixed
+# scaffolding (which L2 reproduces verbatim into every vertical — e.g. a procurement bid-loser
+# example leaking into a med-spa instance). This is a narrow REGRESSION denylist for the known leak,
+# NOT a proof of neutrality (it is substring-evadable by design). Broad domain-neutrality is a
+# SEMANTIC property, enforced by the model-graded L2 eval rubric — not a deterministic check.
+# Library mechanic names (VSL/affiliate/Veblen/Paid Ads) are intentionally NOT listed: they may
+# legitimately appear in neutral guidance, so listing them would false-positive.
+SCAFFOLD_LEAK_TOKENS = ["ACA-framework", "lost recent bids"]
 
 
 def _read(p: Path) -> str:
@@ -329,6 +339,20 @@ def check_security_suite_wired():
             if not problems else "; ".join(problems))
 
 
+def check_scaffolding_no_known_leak():
+    """Regression guard: the L1 SOURCE template (src/l1.template.md) — whose fixed, non-slotted
+    scaffolding L2 reproduces verbatim into every vertical — must not contain a KNOWN vertical-specific
+    example phrase (the procurement bid-loser example that previously leaked into med-spa instances).
+    Scans the source (the single origin; build-sync then guarantees dist matches) across the WHOLE
+    template, whitespace-normalized so line-wrapped phrases still match. NOTE: a denylist catches
+    known leaks only — broad domain-neutrality is the model-graded L2 eval rubric's job, not this."""
+    text = _norm(_read(SRC / "l1.template.md")).lower()
+    hits = [t for t in SCAFFOLD_LEAK_TOKENS if _norm(t).lower() in text]
+    return ("L1 scaffolding: no known vertical leak", not hits,
+            "no known vertical-specific example in source scaffolding" if not hits
+            else f"known vertical-leak phrase in src/l1.template.md: {hits}")
+
+
 ALL_CHECKS = [
     check_l1_sentinels_resolved,
     check_l2_schema_slots,
@@ -341,6 +365,7 @@ ALL_CHECKS = [
     check_promptfoo_configs,
     check_no_codeexec_assertions,
     check_security_suite_wired,
+    check_scaffolding_no_known_leak,
 ]
 
 

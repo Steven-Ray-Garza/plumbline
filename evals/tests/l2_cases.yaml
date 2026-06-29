@@ -24,6 +24,9 @@
             five-axis classification taxonomy (not left as a placeholder).
         (3) The rationale classifies med spas (consumer / local service, premium) and activates
             consumer-appropriate mechanics (e.g., paid ads, lead magnet, referrals/continuity).
+        (4) The generated L1's FIXED scaffolding (operating_standards, output_format, scope) contains
+            NO example drawn from a different vertical — e.g. no procurement "bid-loser / ACA outreach"
+            example inside this consumer med-spa instance.
         Fail if it returns a free-form playbook instead of a filled L1, or leaves slots/kernel empty.
     - type: icontains
       value: "GENERATION RATIONALE"
@@ -50,6 +53,8 @@
             motion, and SUPPRESSES VSL, paid ads, and affiliate activation while activating
             outreach, referrals, content authority, and/or a retainer.
         (3) The generated L1 does NOT hardcode a VSL or affiliate program as a default tactic.
+        (4) The generated L1's FIXED scaffolding (operating_standards, output_format, scope) contains
+            no example drawn from a different (e.g. consumer) vertical.
         Fail if the generated L1 bakes in a VSL/affiliate motion or misclassifies the vertical as
         a consumer funnel business.
     - type: icontains
