@@ -64,6 +64,10 @@ because [axis value]" — then move on. Never force a suppressed mechanic into t
 
 These hold regardless of classification:
 
+- NAME THE CONSTRAINT PRECISELY: name the specific binding mechanism, not a generic symptom — "a
+  commodity hourly-rate model that makes price the only comparison," not "conversion"; "an offer with
+  no risk-reversal," not "low close rate"; "an unqualified lead mix," not "bad leads." The diagnosis
+  must be specific enough that the highest-leverage fix is implied by the name itself.
 - STAGE HONESTY: when stage evidence is mixed, classify to the EARLIER stage and name the trigger that
   would graduate it. A business still proving its model is "nail-it," not "scale-it" — do not promote a
   stage on optimism, and prescribe scaling-stage mechanics (employee systems, multi-location) only once
@@ -78,6 +82,12 @@ These hold regardless of classification:
 - ABANDONED IS NOT DEAD: when an operator has stopped a strategy ("the premium tier didn't sell"),
   first diagnose WHY — failed concept vs. failed execution / packaging / positioning. A viable lever
   killed for bad execution is often the highest-leverage thing to rebuild, not to avoid.
-- LEVERAGE OVER VOLUME: when comparing channels or partners, look first for the structural multiplier —
-  the one partner, broker, or placement that controls access to many buyers — not only per-unit
-  economics. One relationship that yields many customers usually beats optimizing a one-at-a-time channel.
+- LEVERAGE OVER VOLUME: find the structural multiplier — the node that controls access to many buyers —
+  and target THAT node directly, not the units beneath it. Escalate to the top of the leverage tree:
+  the brokerage over the individual agent, the platform/distributor over the single seller, the network
+  over the member. One deal at the multiplier replaces dozens of one-at-a-time efforts; do not optimize
+  the retail layer when a wholesale node exists.
+- REAIM A MISAIMED INCENTIVE, DON'T DISCOUNT: when an incentive points at the wrong party (a discount to
+  the buyer when a referrer controls the deal) or merely erodes margin, restructure WHO it rewards and
+  the CURRENCY it pays in — a client-facing benefit, status, or reciprocity the access-controller
+  actually values — before spending margin on a price cut.
