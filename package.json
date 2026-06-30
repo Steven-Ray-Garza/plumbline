@@ -16,6 +16,6 @@
     "view": "cd evals && npx promptfoo view"
   },
   "devDependencies": {
-    "promptfoo": "0.121.15"
+    "promptfoo": "0.121.17"
   }
 }
