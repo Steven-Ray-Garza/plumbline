@@ -5,11 +5,11 @@ checks.py — Tier-1 deterministic gates for plumbline.
 Zero tokens, no network, runs in seconds. Each check returns (name, ok, detail).
 Run as a script (`python tools/checks.py`) for CI, or import the functions from pytest.
 
-Gates (12 checks in ALL_CHECKS; gate 4 = XML balance runs separately for L1 and L2):
+Gates (15 checks in ALL_CHECKS; gate 4 = XML balance runs separately for L0, L1, and L2):
   1. L1 has no unresolved build sentinels.
   2. L2 exposes all six L1 slot tokens (the schema) and resolved its own build tokens.
-  3. Kernel parity: both artifacts stamp the same sha256, equal to src/kernel.md.
-  4. XML tag balance in both prompts (L2's embedded L1 schema treated as opaque).
+  3. Kernel parity: all artifacts (L0, L1, L2) stamp the same sha256, equal to src/kernel.md.
+  4. XML tag balance in every prompt (L2's embedded L1 schema treated as opaque).
   5. No reasoning-extraction imperatives ("show/echo/output your reasoning", ...).
   6. The conclusions-with-evidence hygiene line is present.
   7. The agnosticism guardrails (default-off + transfer rule) survived into both prompts.
@@ -17,6 +17,10 @@ Gates (12 checks in ALL_CHECKS; gate 4 = XML balance runs separately for L1 and 
   9. No code-executing assertion types run in the (key-bearing) eval suite (R1 exec-path policy).
  10. The adversarial security suite is wired in and judge-hardened (R2 blocking guarantee).
  11. The shipped L1 contains no known vertical-specific example (leak regression guard).
+ 12. L0 (intake interviewer) has no unresolved build sentinels.
+ 13. L0 intake contract: the interviewer covers the load-bearing intake elements (motion-neutral,
+     pre-revenue handling, loss/failure/competition/differentiation/referral probes, two-block
+     output) — a structural TEMPLATE presence check, advisory (not a runtime guarantee).
 """
 from __future__ import annotations
 
@@ -30,6 +34,7 @@ DIST = ROOT / "dist"
 SRC = ROOT / "src"
 EVALS = ROOT / "evals"
 
+L0 = DIST / "l0.system.md"
 L1 = DIST / "l1.system.md"
 L2 = DIST / "l2.system.md"
 
@@ -37,6 +42,15 @@ L1_TAGS = ["role", "operating_standards", "knowledge", "background",
            "process", "output_format", "uncertainty", "scope", "examples"]
 L2_TAGS = ["role", "knowledge", "input_contract", "generation_protocol",
            "l1_template", "output_format", "scope", "bonus_module"]
+L0_TAGS = ["role", "knowledge", "interview_principles", "interview_protocol",
+           "output_contract", "scope"]
+
+# L0 intake-contract markers: the shipped interviewer must MENTION each load-bearing intake element
+# the design critique required (the diagnosis-changing + activate-side fixes). Structural presence
+# only — proof the must-fixes survived into the artifact, NOT a runtime-behavior guarantee.
+L0_CONTRACT_MARKERS = ["motion-neutral", "pre-revenue", "why you stopped", "loss reasons",
+                       "cut corners", "can prove", "refers you", "personal goal",
+                       "BUSINESS CONTEXT", "INTAKE RECORD"]
 
 SLOT_TOKENS = ["@@ROLE@@", "@@BACKGROUND@@", "@@ACTIVE_MODULES@@",
                "@@QUALIFICATION@@", "@@EXAMPLES@@", "@@LEXICON@@"]
@@ -174,10 +188,10 @@ def check_l2_schema_slots():
 
 def check_kernel_parity():
     expected = _kernel_hash()
-    h1, h2 = _stamped_hash(_read(L1)), _stamped_hash(_read(L2))
-    ok = h1 == expected and h2 == expected
-    return ("Kernel parity (L1 == L2 == src)", ok,
-            f"src={expected} l1={h1} l2={h2}")
+    h0, h1, h2 = _stamped_hash(_read(L0)), _stamped_hash(_read(L1)), _stamped_hash(_read(L2))
+    ok = h0 == expected and h1 == expected and h2 == expected
+    return ("Kernel parity (L0 == L1 == L2 == src)", ok,
+            f"src={expected} l0={h0} l1={h1} l2={h2}")
 
 
 def check_l1_xml_balance():
@@ -356,6 +370,33 @@ def check_scaffolding_no_known_leak():
             else f"known vertical-leak phrase in dist/l1.system.md: {hits}")
 
 
+def check_l0_sentinels_resolved():
+    text = _read(L0)
+    left = [t for t in re.findall(r"@@[A-Z_]+@@", text)]
+    return ("L0 sentinels resolved", not left,
+            "clean" if not left else f"unresolved: {sorted(set(left))}")
+
+
+def check_l0_xml_balance():
+    problems = _balance(_read(L0), L0_TAGS)
+    return ("L0 XML balance", not problems, "balanced" if not problems else "; ".join(problems))
+
+
+def check_l0_intake_contract():
+    """Structural coverage: the shipped intake interviewer (dist/l0.system.md) must MENTION the
+    load-bearing intake elements the design critique required — motion-neutral framing, pre-revenue
+    handling, and the loss-reason / failure-forensics / competition / differentiation / referral
+    probes, plus the two-block (BUSINESS CONTEXT + INTAKE RECORD) output contract. This proves the
+    must-fixes survived into the artifact; it is a TEMPLATE presence check, NOT a guarantee that a
+    runtime interview complied (that is model behavior — monitored advisorily, never hard-gated,
+    per the R2 policy)."""
+    text = _norm(_read(L0)).lower()
+    missing = [m for m in L0_CONTRACT_MARKERS if _norm(m).lower() not in text]
+    return ("L0 intake contract covered", not missing,
+            "interviewer covers all load-bearing intake elements" if not missing
+            else f"missing intake elements: {missing}")
+
+
 ALL_CHECKS = [
     check_l1_sentinels_resolved,
     check_l2_schema_slots,
@@ -369,6 +410,9 @@ ALL_CHECKS = [
     check_no_codeexec_assertions,
     check_security_suite_wired,
     check_scaffolding_no_known_leak,
+    check_l0_sentinels_resolved,
+    check_l0_xml_balance,
+    check_l0_intake_contract,
 ]
 
 

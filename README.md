@@ -2,8 +2,9 @@
 
 **Prompts-as-code CI.** plumbline compiles prompts from a single source kernel, proves the compiled
 artifacts haven't drifted by hashing that kernel, and gates behavior — plus a small, honestly-scoped
-adversarial tier — before anything merges. A two-layer business-diagnostic engine ships as the
-**reference payload**, so the harness is demonstrated on a real, falsifiable problem rather than a toy.
+adversarial tier — before anything merges. A multi-layer business-diagnostic engine (intake →
+diagnose → forge) ships as the **reference payload**, so the harness is demonstrated on a real,
+falsifiable problem rather than a toy.
 
 > **Independent project.** Not affiliated with or endorsed by Alex Hormozi or Acquisition.com.
 > See [NOTICE](NOTICE) and [the disclaimer](#disclaimer).
@@ -31,11 +32,12 @@ Everything else is the test harness around those two ideas.
 ## The two-tier gate
 
 **Tier 1 — deterministic (`tools/checks.py` + `pytest`). The hard merge gate.**
-Zero tokens, every push/PR. Twelve checks: sentinel resolution, L2 slot-schema exposure, kernel-hash
-parity, XML balance (L1 + L2), no reasoning-extraction imperatives, the conclusions-with-evidence
-hygiene line, the agnosticism guardrails, promptfoo config integrity, **no code-executing assertions
-in the eval suite**, and **the adversarial security suite stays wired + hardened**, and **the L1 scaffolding carries no known vertical-specific example**. Make `lint` your
-required status check.
+Zero tokens, every push/PR. Fifteen checks: sentinel resolution (L0 + L1), L2 slot-schema exposure,
+kernel-hash parity (L0 + L1 + L2), XML balance (L0 + L1 + L2), no reasoning-extraction imperatives,
+the conclusions-with-evidence hygiene line, the agnosticism guardrails, promptfoo config integrity,
+**no code-executing assertions in the eval suite**, **the adversarial security suite stays wired +
+hardened**, **the L1 scaffolding carries no known vertical-specific example**, and **the L0 intake
+interviewer covers its load-bearing elements**. Make `lint` your required status check.
 
 **Tier 2 — model-graded (`promptfoo`). Advisory.**
 Costs tokens, so it is path-filtered + key-gated and runs only when prompts / kernel / eval / workflow
@@ -67,13 +69,16 @@ guarantees they stay present and hardened so the tier can't be silently removed.
 
 ```
 src/kernel.md        the Shared Kernel — classification taxonomy + library + activation map
-src/l1.template.md   L1 (diagnostic engine), sentinels:  @@KERNEL@@  six @@SLOT@@  @@INPUT@@
-src/l2.template.md   L2 (vertical forge),    sentinels:  @@KERNEL@@  @@L1_TEMPLATE@@  @@INPUT@@
+src/l0.template.md   L0 (intake interviewer), sentinels: @@KERNEL@@  @@SEED@@
+src/l1.template.md   L1 (diagnostic engine),  sentinels: @@KERNEL@@  six @@SLOT@@  @@INPUT@@
+src/l2.template.md   L2 (vertical forge),     sentinels: @@KERNEL@@  @@L1_TEMPLATE@@  @@INPUT@@
+src/l0.schema.md     L0 intake schema + private-record format (documentation; not compiled)
 ```
 
 `python tools/build.py` renders the deployable artifacts:
 
 ```
+dist/l0.system.md          intake interviewer (paste to run an intake)
 dist/l1.system.md          human paste version
 dist/l2.system.md          human paste version
 evals/prompts/l1.eval.md   promptfoo version ({{business_context}})
@@ -90,7 +95,7 @@ evals/prompts/l2.eval.md   promptfoo version ({{vertical_spec}})
 ```bash
 # Tier 1 — deterministic, zero tokens
 python tools/build.py        # compile prompts from src/
-python tools/checks.py       # 12 deterministic gates
+python tools/checks.py       # 15 deterministic gates
 pytest -q                    # the same gates, as pytest cases
 # (or: make lint  /  npm run build)
 
@@ -110,6 +115,11 @@ local runs install it with `npm ci` — never `npx promptfoo@latest`.
 
 ## The reference payload: a two-layer diagnostic engine
 
+- **L0 — Intake Interviewer.** An adaptive, motion-neutral interview that elicits exactly the
+  datapoints L1 needs — including the diagnosis-changing ones a static form misses (what was tried and
+  *why it was stopped*, how competitors cut corners, real-vs-provable differentiation, the operator's
+  why) — then emits a clean business-context blob plus a structured record. It reuses the kernel's five
+  axes, so it asks for exactly what L1 classifies on. Schema: `src/l0.schema.md`.
 - **L1 — Diagnostic Engine.** Classifies any business on five axes, then prescribes
   acquisition / distribution / monetization fixes using only the mechanics the classification activates.
 - **L2 — Vertical Forge.** A meta-prompt whose only output is a schema-conformant L1 instance tuned to
