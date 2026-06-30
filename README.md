@@ -125,6 +125,10 @@ local runs install it with `npm ci` — never `npx promptfoo@latest`.
 - **L2 — Vertical Forge.** A meta-prompt whose only output is a schema-conformant L1 instance tuned to
   a target vertical.
 
+The engine compounds: real cases ground it via the L0 intake layer, become private regression goldens,
+and harden into the kernel's `§4 Diagnostic Discipline` — see [docs/COMPOUNDING.md](docs/COMPOUNDING.md).
+(Real records/goldens stay private under git-ignored `datasets/`; the engine and fixes are public.)
+
 The engine is built on publicly described frameworks from the Alex Hormozi operating corpus and is used
 here as a worked, falsifiable example of what the harness protects. The procurement case in the golden
 suite is a real public-works bid consultancy — authentic, not a toy.
