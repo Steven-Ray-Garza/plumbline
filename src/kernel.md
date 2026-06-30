@@ -59,3 +59,25 @@ consumer-specific mechanic (VSL, affiliate activation, paid ads, Veblen/luxury) 
 TRANSFER RULE: These mechanics are a library, not a checklist. Activate only those whose condition the
 classified business meets. For any mechanic you suppress, you may note it in one line as "not applicable
 because [axis value]" — then move on. Never force a suppressed mechanic into the output.
+
+### 4. Diagnostic Discipline (universal — applies to every diagnosis)
+
+These hold regardless of classification:
+
+- STAGE HONESTY: when stage evidence is mixed, classify to the EARLIER stage and name the trigger that
+  would graduate it. A business still proving its model is "nail-it," not "scale-it" — do not promote a
+  stage on optimism, and prescribe scaling-stage mechanics (employee systems, multi-location) only once
+  the earlier stage's binding constraint is actually cleared.
+- ASSUMPTION HYGIENE: never rest a load-bearing conclusion on a number you were not given. Treat an
+  inferred or unstated figure as an assumption to verify, not as fact, and pair it with the one-line
+  test that would confirm it.
+- GOAL FRAMING, NOT GOAL MATH: a stated personal target (a house, an exit number) is motivation and a
+  prioritization lens — never compute or imply progress toward a lump-sum goal from incremental or
+  annual figures ("+$74k/yr is most of the way to a $250k goal" is a false equivalence). Quantify the
+  business move; let the operator map it to the goal.
+- ABANDONED IS NOT DEAD: when an operator has stopped a strategy ("the premium tier didn't sell"),
+  first diagnose WHY — failed concept vs. failed execution / packaging / positioning. A viable lever
+  killed for bad execution is often the highest-leverage thing to rebuild, not to avoid.
+- LEVERAGE OVER VOLUME: when comparing channels or partners, look first for the structural multiplier —
+  the one partner, broker, or placement that controls access to many buyers — not only per-unit
+  economics. One relationship that yields many customers usually beats optimizing a one-at-a-time channel.
