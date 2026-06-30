@@ -273,7 +273,7 @@ gate could catch. All preserve the design above; none change scope.
   Environment decision and avoiding a deployment-branch-policy red on every PR. Change-filter now also
   covers `package*.json` and `tools/checks.py`. Makefile parameterized `PYTHON ?= python3`.
 
-All eleven Tier-1 checks + pytest remain green; each refinement was empirically probed against the
+All twelve Tier-1 checks + pytest remain green; each refinement was empirically probed against the
 exact evasions the review found.
 
 ---
