@@ -9,7 +9,7 @@
 > reproducible CI result. The official run needs a budget-capped `ANTHROPIC_API_KEY` + `npm ci`.
 
 ## Gate 0 — deterministic Tier-1 (zero tokens): PASS
-`python tools/build.py --check` → artifacts in sync · `tools/checks.py` → **11/11** · `pytest` → **12/12**.
+`python tools/build.py --check` → artifacts in sync · `tools/checks.py` → **12/12** · `pytest` → **13/13**.
 
 ## Gate 1 (shadow) — the engine's own golden + security suites: 8/8 PASS
 

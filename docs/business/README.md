@@ -14,6 +14,6 @@ unedited — and are filed by business-document type.
 This set is intentionally honest about limitations (see **FAQ.md**): as of capture, the model-graded
 quality evals had **not yet run** (no API key configured), so claims about the *quality* of the
 engine's advice are untested hypotheses, not demonstrated results. The deterministic quality-control
-machinery, by contrast, is verified (11/11 checks).
+machinery, by contrast, is verified (12/12 checks).
 
 *Affiliation note: plumbline is independent and not affiliated with or endorsed by Alex Hormozi — see [NOTICE](../../NOTICE).*

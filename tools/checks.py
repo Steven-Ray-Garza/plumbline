@@ -5,7 +5,7 @@ checks.py — Tier-1 deterministic gates for plumbline.
 Zero tokens, no network, runs in seconds. Each check returns (name, ok, detail).
 Run as a script (`python tools/checks.py`) for CI, or import the functions from pytest.
 
-Gates:
+Gates (12 checks in ALL_CHECKS; gate 4 = XML balance runs separately for L1 and L2):
   1. L1 has no unresolved build sentinels.
   2. L2 exposes all six L1 slot tokens (the schema) and resolved its own build tokens.
   3. Kernel parity: both artifacts stamp the same sha256, equal to src/kernel.md.
@@ -16,7 +16,7 @@ Gates:
   8. promptfoo configs are valid and reference files that exist.
   9. No code-executing assertion types run in the (key-bearing) eval suite (R1 exec-path policy).
  10. The adversarial security suite is wired in and judge-hardened (R2 blocking guarantee).
- 11. The L1 source scaffolding has no known vertical-specific example (leak regression guard).
+ 11. The shipped L1 contains no known vertical-specific example (leak regression guard).
 """
 from __future__ import annotations
 
@@ -71,13 +71,15 @@ SECURITY_CONFIG = EVALS / "promptfooconfig.security.yaml"
 HARDENING_MARKER = "UNTRUSTED DATA"
 REQUIRED_SECURITY_TAGS = ["LLM01", "judge-robustness"]  # plus LLM02 OR LLM07 (leakage)
 
-# ---- Known vertical-specific EXAMPLE phrases that must not appear in the L1 template's fixed
-# scaffolding (which L2 reproduces verbatim into every vertical — e.g. a procurement bid-loser
-# example leaking into a med-spa instance). This is a narrow REGRESSION denylist for the known leak,
-# NOT a proof of neutrality (it is substring-evadable by design). Broad domain-neutrality is a
-# SEMANTIC property, enforced by the model-graded L2 eval rubric — not a deterministic check.
-# Library mechanic names (VSL/affiliate/Veblen/Paid Ads) are intentionally NOT listed: they may
-# legitimately appear in neutral guidance, so listing them would false-positive.
+# ---- Known vertical-specific EXAMPLE phrases that must not appear in the shipped L1's fixed
+# scaffolding (which L2 reproduces into every vertical — e.g. a procurement bid-loser example leaking
+# into a med-spa instance). This is a narrow REGRESSION tombstone for the KNOWN leak, NOT a proof of
+# neutrality: it is substring-evadable by design. Broad domain-neutrality is a SEMANTIC property
+# checked by the model-graded L2 eval rubric — which is intentionally ADVISORY (Tier-2, non-blocking),
+# because model-graded gates must not be merge-blocking (R2). So neutrality beyond these literals is
+# MONITORED, not hard-gated — a deliberate trade-off, not an oversight. Library mechanic names
+# (VSL/affiliate/Veblen/Paid Ads) are intentionally NOT listed: they may legitimately appear in
+# neutral guidance, so listing them would false-positive.
 SCAFFOLD_LEAK_TOKENS = ["ACA-framework", "lost recent bids"]
 
 
@@ -340,17 +342,18 @@ def check_security_suite_wired():
 
 
 def check_scaffolding_no_known_leak():
-    """Regression guard: the L1 SOURCE template (src/l1.template.md) — whose fixed, non-slotted
-    scaffolding L2 reproduces verbatim into every vertical — must not contain a KNOWN vertical-specific
-    example phrase (the procurement bid-loser example that previously leaked into med-spa instances).
-    Scans the source (the single origin; build-sync then guarantees dist matches) across the WHOLE
-    template, whitespace-normalized so line-wrapped phrases still match. NOTE: a denylist catches
-    known leaks only — broad domain-neutrality is the model-graded L2 eval rubric's job, not this."""
-    text = _norm(_read(SRC / "l1.template.md")).lower()
+    """Regression guard: the SHIPPED L1 (dist/l1.system.md) must not contain a KNOWN vertical-specific
+    example phrase (the procurement bid-loser example that previously leaked into med-spa instances via
+    L2's verbatim reproduction of the fixed scaffolding). Scans the compiled artifact, which folds in
+    ALL origins — src/l1.template.md, the build.py slot defaults, and the injected kernel — so a leak
+    from any origin surfaces here; the build-sync gate (test_build_is_in_sync / build.py --check)
+    guarantees dist reflects current sources. Whitespace-normalized so line-wrapped phrases match.
+    NOTE: a denylist catches KNOWN leaks only — broad neutrality is the advisory L2 eval rubric's job."""
+    text = _norm(_read(L1)).lower()
     hits = [t for t in SCAFFOLD_LEAK_TOKENS if _norm(t).lower() in text]
     return ("L1 scaffolding: no known vertical leak", not hits,
-            "no known vertical-specific example in source scaffolding" if not hits
-            else f"known vertical-leak phrase in src/l1.template.md: {hits}")
+            "no known vertical-specific example in shipped L1" if not hits
+            else f"known vertical-leak phrase in dist/l1.system.md: {hits}")
 
 
 ALL_CHECKS = [
