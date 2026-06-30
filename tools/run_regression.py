@@ -48,10 +48,9 @@ def main() -> int:
         print("Keep eval outputs out of git (datasets/ is git-ignored).")
     else:
         print("\nNo ANTHROPIC_API_KEY -> keyless, orchestration-graded regression (shadow-eval).")
-        print("Run the Workflow tool with tools/regression.workflow.js, passing:")
-        print('  args = { "enginePath": "<abs>/dist/l1.system.md",')
-        print('           "goldens": [ { "name", "business_context", "rubric" }, ... ] }')
-        print("(Read each golden YAML and pass its case in.) See docs/COMPOUNDING.md.")
+        print("Run the Workflow tool against the runner (it reads these goldens itself):")
+        print('  Workflow({ scriptPath: "tools/regression.workflow.js" })')
+        print("See docs/COMPOUNDING.md.")
     return 0
 
 
