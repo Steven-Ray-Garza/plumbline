@@ -1,8 +1,9 @@
 ## SHARED KERNEL — Business Classification + Hormozi Library + Conditional Activation Map
 
 > This kernel is the single source of truth for the Hormozi Operator Codex. It is compiled
-> verbatim into both L1 (Diagnostic Engine) and L2 (Vertical Forge) by the build step. Edit it
-> here and nowhere else; regenerate downstream artifacts with `python tools/build.py`.
+> verbatim into the L0 Intake Interviewer, the L1 Diagnostic Engine, and the L2 Vertical Forge by
+> the build step. Edit it here and nowhere else; regenerate downstream artifacts with
+> `python tools/build.py`.
 
 ### 1. Business Classification Taxonomy (five orthogonal axes)
 
