@@ -3,9 +3,14 @@
 # L1 respects the Conditional Activation Map for the target vertical — activating consumer mechanics
 # for a consumer vertical and suppressing them for a procurement vertical.
 #
-# Structural assertions are declarative (contains/icontains) — NO code-executing assertion types
-# (no `type: javascript` / `type: python`), per the R1 exec-path policy. Every llm-rubric is
+# Structural assertions are declarative (contains/icontains/regex) — NO code-executing assertion
+# types (no `type: javascript` / `type: python`), per the R1 exec-path policy. Every llm-rubric is
 # judge-hardened: the grader treats the candidate output as UNTRUSTED DATA.
+#
+# Each case carries a TRUNCATION TRIPWIRE: GENERATION RATIONALE is the LAST block L2 emits, so a
+# max_tokens truncation eats it first. The regex requires the header AND real trailing content, so a
+# future budget squeeze fails LOUD here as a truncated terminal section rather than masquerading as a
+# misleading llm-rubric "missing rationale" miss. Pairs with max_tokens in promptfooconfig.l2.yaml.
 
 - description: "Consumer vertical (med spas) — generated L1 should activate consumer mechanics"
   vars:
@@ -30,6 +35,9 @@
         Fail if it returns a free-form playbook instead of a filled L1, or leaves slots/kernel empty.
     - type: icontains
       value: "GENERATION RATIONALE"
+    # Truncation tripwire — header present AND >=120 chars of rationale body after it (see file header).
+    - type: regex
+      value: 'GENERATION RATIONALE[\s\S]{120,}'
     - type: contains
       value: "Target business context:"
     - type: icontains
@@ -59,6 +67,9 @@
         a consumer funnel business.
     - type: icontains
       value: "GENERATION RATIONALE"
+    # Truncation tripwire — header present AND >=120 chars of rationale body after it (see file header).
+    - type: regex
+      value: 'GENERATION RATIONALE[\s\S]{120,}'
     - type: contains
       value: "Target business context:"
     - type: icontains
