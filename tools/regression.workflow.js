@@ -28,10 +28,13 @@ export const meta = {
   ],
 }
 
-const GOLDENS_DIR = (args && args.goldensDir) || 'C:\\Users\\srgar\\plumbline\\datasets\\goldens'
-const ENGINE = (args && args.enginePath) || 'C:\\Users\\srgar\\plumbline\\dist\\l1.system.md'
-const SUT_MODEL = (args && args.sutModel) || null
-const JUDGE_MODEL = (args && args.judgeModel) || null
+// Some harness paths deliver `args` as a JSON-encoded string rather than an object; tolerate both.
+// A malformed string should fail loudly (JSON.parse throws) — never fall back to default mode silently.
+const ARGS = typeof args === 'string' ? JSON.parse(args) : (args || {})
+const GOLDENS_DIR = ARGS.goldensDir || 'C:\\Users\\srgar\\plumbline\\datasets\\goldens'
+const ENGINE = ARGS.enginePath || 'C:\\Users\\srgar\\plumbline\\dist\\l1.system.md'
+const SUT_MODEL = ARGS.sutModel || null
+const JUDGE_MODEL = ARGS.judgeModel || null
 
 // Bench-mode preconditions, fail-closed BEFORE any agent spend: both models named together, and the
 // judge must be a different model than the SUT — no same-family self-grading.
