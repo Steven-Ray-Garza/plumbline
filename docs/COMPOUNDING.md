@@ -35,3 +35,12 @@ The fix is public; the data is not.
    in the private `LEARNINGS.md`. New goldens join the suite.
 
 Each cycle the golden suite grows and the kernel sharpens — monotonically. That is the compounding.
+
+## Model qualification (which SUT model earns the diagnosis seat)
+The keyless runner doubles as a model-qualification bench: pass harness model identifiers to pin who
+runs the engine and who grades it —
+`Workflow({ scriptPath: "tools/regression.workflow.js", args: { sutModel: "opus", judgeModel: "sonnet" } })`.
+Cross-model judging is enforced fail-closed: `judgeModel` must differ from `sutModel`, so a model never
+grades its own family, and both must be named together. Bench each candidate on the same goldens with
+the SAME judge, then compare scorecards (the result carries `sut_model`/`judge_model` in bench mode).
+Scorecards are private — keep them out of git, like every `datasets/` output.
