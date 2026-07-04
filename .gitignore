@@ -16,3 +16,4 @@ __pycache__/
 
 # private intake datasets — real client interview records never leave the machine
 datasets/
+.vercel
