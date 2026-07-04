@@ -5,7 +5,8 @@
   "license": "MIT",
   "description": "Prompts-as-code CI: compile prompts from one source kernel, verify parity by hash, and gate behavior plus a small adversarial tier before merge. Ships a business-diagnostic engine (built on the Alex Hormozi corpus) as the reference payload.",
   "engines": {
-    "node": ">=22.22.0 || ^20.20.0"
+    "node": ">=22.22.0 || ^20.20.0",
+    "npm": "^10"
   },
   "scripts": {
     "build": "python tools/build.py",
