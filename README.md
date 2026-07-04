@@ -107,9 +107,11 @@ npm run eval:security        # advisory adversarial tier
 npm run view                 # promptfoo results UI
 ```
 
-Requirements: Python 3.12 (`pip install -r requirements.txt`) and Node `>=22.22.0` (or `^20.20.0`).
-**promptfoo is pinned** (exact version in `package.json`, full tree in `package-lock.json`); CI and
-local runs install it with `npm ci` — never `npx promptfoo@latest`.
+Requirements: Python 3.12 (`pip install -r requirements.txt`) and Node `>=22.22.0` (or `^20.20.0`),
+which bundle **npm 10** — the same npm major CI uses. **promptfoo is pinned** (exact version in
+`package.json`, full tree in `package-lock.json`); CI and local runs install it with `npm ci` —
+never `npx promptfoo@latest`. Regenerate the lockfile only via `make lockfile` (`npx npm@10 install
+--package-lock-only`): an npm-11 regen prunes promptfoo's optional deps and breaks CI's `npm ci`.
 
 ---
 
@@ -160,9 +162,10 @@ You don't edit the schema to add a vertical — L2 fills the slots; the scaffold
 |---|---|---|
 | Golden pass-rate threshold | `PASS_THRESHOLD` in `ci.yml` | `0.85` (≈ all-green at current N) |
 | Judge model | `defaultTest.options.provider` in each `promptfooconfig.*.yaml` | `claude-sonnet-4-6` |
-| SUT model / max tokens | `providers` in each config | `claude-opus-4-8`, 4096 (L1) / 8192 (L2) |
+| SUT model / max tokens | `providers` in each config | `claude-opus-4-8`, 4096 (L1) / 16384 (L2) |
 | Eval concurrency | `commandLineOptions.maxConcurrency` | `2` |
-| Pinned promptfoo | `package.json` devDependency + `package-lock.json` | `0.121.15` |
+| Pinned promptfoo | `package.json` devDependency + `package-lock.json` | `0.121.17` |
+| Lockfile npm major | `engines.npm` in `package.json`; regen via `make lockfile` | `^10` (matches CI's node-22 npm) |
 
 > **No sampling params.** Claude 4.x rejects a non-default `temperature`, so the provider configs omit
 > it deliberately. CI runs a lean config (no extended thinking); production use of these prompts

@@ -22,6 +22,15 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "22"
+      # PR-time lockfile guard. The evals job (the only `npm ci`) never runs on PR refs, so a
+      # desynced package-lock.json passes lint, merges clean, then breaks the post-merge eval
+      # (happened twice: #9's dependabot lock, #16's npm-11 regen). Node 22 bundles npm 10 — the
+      # same resolver major the evals job uses — so this dry-run is predictive of the real npm ci.
+      - name: Lockfile sync guard (npm ci --dry-run)
+        run: npm ci --dry-run --no-audit --no-fund
       - name: Install Python deps
         run: pip install -r requirements.txt
       - name: Compile prompts from source

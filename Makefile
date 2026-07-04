@@ -2,7 +2,7 @@
 # or just call the python scripts / npm scripts directly.
 PYTHON ?= python3
 
-.PHONY: build lint eval eval-l1 eval-l2 eval-security view clean
+.PHONY: build lint lockfile eval eval-l1 eval-l2 eval-security view clean
 # Compile prompts from src/ into dist/ (human) and evals/prompts/ (promptfoo).
 build:
 	$(PYTHON) tools/build.py
@@ -12,6 +12,13 @@ lint: build
 	$(PYTHON) tools/build.py --check
 	$(PYTHON) tools/checks.py
 	pytest -q
+
+# Regenerate package-lock.json with npm 10 — the major CI's node-22 bundles. An npm-11 regen
+# prunes promptfoo's optional deps from the lock and breaks CI's `npm ci`; the dry-run here is
+# predictive only because the npm major matches CI.
+lockfile:
+	npx npm@10 install --package-lock-only
+	npx npm@10 ci --dry-run --no-audit --no-fund
 
 # Tier 2 — model-graded (needs ANTHROPIC_API_KEY + `npm ci` for the pinned promptfoo).
 # Builds first so evals hit fresh artifacts. ADVISORY — not a merge gate.
