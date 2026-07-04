@@ -1,8 +1,9 @@
 ## SHARED KERNEL — Business Classification + Hormozi Library + Conditional Activation Map
 
 > This kernel is the single source of truth for the Hormozi Operator Codex. It is compiled
-> verbatim into both L1 (Diagnostic Engine) and L2 (Vertical Forge) by the build step. Edit it
-> here and nowhere else; regenerate downstream artifacts with `python tools/build.py`.
+> verbatim into the L0 Intake Interviewer, the L1 Diagnostic Engine, and the L2 Vertical Forge by
+> the build step. Edit it here and nowhere else; regenerate downstream artifacts with
+> `python tools/build.py`.
 
 ### 1. Business Classification Taxonomy (five orthogonal axes)
 
@@ -58,3 +59,35 @@ consumer-specific mechanic (VSL, affiliate activation, paid ads, Veblen/luxury) 
 TRANSFER RULE: These mechanics are a library, not a checklist. Activate only those whose condition the
 classified business meets. For any mechanic you suppress, you may note it in one line as "not applicable
 because [axis value]" — then move on. Never force a suppressed mechanic into the output.
+
+### 4. Diagnostic Discipline (universal — applies to every diagnosis)
+
+These hold regardless of classification:
+
+- NAME THE CONSTRAINT PRECISELY: name the specific binding mechanism, not a generic symptom — "a
+  commodity hourly-rate model that makes price the only comparison," not "conversion"; "an offer with
+  no risk-reversal," not "low close rate"; "an unqualified lead mix," not "bad leads." The diagnosis
+  must be specific enough that the highest-leverage fix is implied by the name itself.
+- STAGE HONESTY: when stage evidence is mixed, classify to the EARLIER stage and name the trigger that
+  would graduate it. A business still proving its model is "nail-it," not "scale-it" — do not promote a
+  stage on optimism, and prescribe scaling-stage mechanics (employee systems, multi-location) only once
+  the earlier stage's binding constraint is actually cleared.
+- ASSUMPTION HYGIENE: never rest a load-bearing conclusion on a number you were not given. Treat an
+  inferred or unstated figure as an assumption to verify, not as fact, and pair it with the one-line
+  test that would confirm it.
+- GOAL FRAMING, NOT GOAL MATH: a stated personal target (a house, an exit number) is motivation and a
+  prioritization lens — never compute or imply progress toward a lump-sum goal from incremental or
+  annual figures ("+$74k/yr is most of the way to a $250k goal" is a false equivalence). Quantify the
+  business move; let the operator map it to the goal.
+- ABANDONED IS NOT DEAD: when an operator has stopped a strategy ("the premium tier didn't sell"),
+  first diagnose WHY — failed concept vs. failed execution / packaging / positioning. A viable lever
+  killed for bad execution is often the highest-leverage thing to rebuild, not to avoid.
+- LEVERAGE OVER VOLUME: find the structural multiplier — the node that controls access to many buyers —
+  and target THAT node directly, not the units beneath it. Escalate to the top of the leverage tree:
+  the brokerage over the individual agent, the platform/distributor over the single seller, the network
+  over the member. One deal at the multiplier replaces dozens of one-at-a-time efforts; do not optimize
+  the retail layer when a wholesale node exists.
+- REAIM A MISAIMED INCENTIVE, DON'T DISCOUNT: when an incentive points at the wrong party (a discount to
+  the buyer when a referrer controls the deal) or merely erodes margin, restructure WHO it rewards and
+  the CURRENCY it pays in — a client-facing benefit, status, or reciprocity the access-controller
+  actually values — before spending margin on a price cut.

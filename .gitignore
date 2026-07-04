@@ -13,3 +13,6 @@ __pycache__/
 .env
 .env.*
 .DS_Store
+
+# private intake datasets — real client interview records never leave the machine
+datasets/

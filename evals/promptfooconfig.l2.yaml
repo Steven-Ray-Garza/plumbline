@@ -8,7 +8,11 @@ providers:
   - id: anthropic:messages:claude-opus-4-8
     label: L2-SUT
     config:
-      max_tokens: 8192   # L2 emits a full L1 instance — needs headroom
+      # L2 emits a COMPLETE L1 instance (kernel verbatim + fixed scaffolding + two worked examples)
+      # plus a trailing GENERATION RATIONALE — measured at ~10-14k tokens. 8192 truncated the tail,
+      # silently dropping the rationale and failing the golden gate. 16384 clears the full output with
+      # headroom; the truncation tripwire in tests/l2_cases.yaml fails LOUD if this ever grows tight.
+      max_tokens: 16384
 
 defaultTest:
   options:

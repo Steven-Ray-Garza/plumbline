@@ -6,8 +6,10 @@ Source of truth lives in src/:
     kernel.md         the Shared Kernel (taxonomy + library + activation map)
     l1.template.md    L1 Diagnostic Engine, with @@KERNEL@@, six @@SLOT@@, @@INPUT@@
     l2.template.md    L2 Vertical Forge, with @@KERNEL@@, @@L1_TEMPLATE@@, @@INPUT@@
+    l0.template.md    L0 Intake Interviewer, with @@KERNEL@@, @@SEED@@
 
 Outputs (build artifacts — do not edit by hand):
+    dist/l0.system.md         human paste version (intake interviewer)
     dist/l1.system.md         human paste version (clean, [INSERT ...] placeholder)
     dist/l2.system.md         human paste version
     evals/prompts/l1.eval.md  promptfoo version ({{business_context}})
@@ -90,6 +92,11 @@ def _build_l1_body(kernel: str) -> str:
     return body
 
 
+def _build_l0_body(kernel: str) -> str:
+    """L0 intake interviewer with the kernel injected. @@SEED@@ still present (caller swaps it)."""
+    return _read(SRC / "l0.template.md").replace("@@KERNEL@@", kernel)
+
+
 def _build_l1_schema_for_embedding() -> str:
     """The L1 template as a SCHEMA for L2: kernel -> short placeholder, slot tokens PRESERVED,
     @@INPUT@@ -> literal {{business_context}} so a generated L1 ends with the CI input token."""
@@ -115,11 +122,15 @@ def render() -> dict[Path, str]:
     khash = _kernel_hash(kernel)
     stamp = _stamp(khash)
 
+    l0_body = _build_l0_body(kernel)
     l1_body = _build_l1_body(kernel)
     l2_eval_body = _build_l2_body(kernel, raw_wrap_schema=True)
     l2_human_body = _build_l2_body(kernel, raw_wrap_schema=False)
 
     artifacts = {
+        DIST / "l0.system.md":
+            stamp + l0_body.replace(
+                "@@SEED@@", "```[OPTIONAL: PASTE ANYTHING YOU ALREADY KNOW ABOUT THE BUSINESS]```"),
         DIST / "l1.system.md":
             stamp + l1_body.replace("@@INPUT@@", "```[INSERT BUSINESS CONTEXT HERE]```"),
         DIST / "l2.system.md":
