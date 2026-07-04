@@ -47,6 +47,6 @@ note this is a *generation-quality* issue, so prompt-hardening reduces recurrenc
 deterministically eliminate it — the eval tier is the ongoing monitor.
 
 ## Next
-1. **Canonical Gate 1** — run the pinned promptfoo eval once a budget-capped `ANTHROPIC_API_KEY` is available (CI Environment or local shell).
+1. ~~**Canonical Gate 1**~~ — **DONE 2026-07-04:** ran green through the pinned CI toolchain with the configured Sonnet judge (L1 3/3 · L2 2/2 · security 3/3). See [`GATE1-CANONICAL.md`](GATE1-CANONICAL.md). (The med-spa L2 defect noted above was fixed; a later `max_tokens: 8192` truncation was the only remaining gap, fixed in PR #14.)
 2. **Gate 2-3** — feed the real `rfp-consultancy` at full fidelity, then `ClaimReveal` as the overfit/generalization check.
 3. **Gate 5** — act on the engine's procurement prescription (outreach to firms that lost recent bids) and measure a real reply/discovery call. That single experiment validates the engine *and* advances the business.
